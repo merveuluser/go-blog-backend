@@ -1,0 +1,5 @@
+DROP TABLE authors CASCADE;
+DROP TABLE categories CASCADE;
+DROP TABLE comments CASCADE;
+DROP TABLE post_categories CASCADE;
+DROP TABLE posts CASCADE;
