@@ -8,7 +8,7 @@ import (
 func CheckExists(db *sql.DB, table string, id int) (bool, error) {
 	var exists bool
 
-	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM '%s' WHERE id = '%d')", table, id)
+	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE id = %d)", table, id)
 	err := db.QueryRow(query).Scan(&exists)
 	if err != nil {
 		return false, err
