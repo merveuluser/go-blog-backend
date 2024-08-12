@@ -5,10 +5,22 @@ import (
 	"fmt"
 )
 
-func CheckExists(db *sql.DB, table string, id int) (bool, error) {
+func CheckExistsByID(db *sql.DB, table string, id int) (bool, error) {
 	var exists bool
 
 	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE id = %d)", table, id)
+	err := db.QueryRow(query).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+func CheckExistsByName(db *sql.DB, table string, name string) (bool, error) {
+	var exists bool
+
+	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE category_name = '%s')", table, name)
 	err := db.QueryRow(query).Scan(&exists)
 	if err != nil {
 		return false, err
@@ -27,5 +39,17 @@ func CheckTable(db *sql.DB, table string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	return exists, nil
+}
+
+func CheckUser(db *sql.DB, id int) (bool, error) {
+	var exists bool
+
+	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM authors WHERE id = %d)", id)
+	err := db.QueryRow(query).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
 	return exists, nil
 }

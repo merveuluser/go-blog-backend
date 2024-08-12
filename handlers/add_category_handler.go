@@ -1,18 +1,18 @@
 package handlers
 
 import (
+	"blog-backend/categories"
 	"blog-backend/database"
 	"blog-backend/helpers"
 	"blog-backend/models"
-	"blog-backend/posts"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
-	tableExists, err := helpers.CheckTable(database.DB, "posts")
+func AddCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	tableExists, err := helpers.CheckTable(database.DB, "categories")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -26,7 +26,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	if !tableExists {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "posts table does not exist"}); encodeErr != nil {
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "categories table does not exist"}); encodeErr != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Fatal("Error encoding JSON response:", encodeErr)
 		}
@@ -76,13 +76,13 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var post models.Post
-	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
+	var category models.Category
+	if encodeErr := json.NewDecoder(r.Body).Decode(&category); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal("Error encoding JSON response:", encodeErr)
 	}
 
-	if post.Title == "" || post.Content == "" {
+	if category.Name == "" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid request body"}); encodeErr != nil {
@@ -92,13 +92,31 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post.AuthorID = userID
-
-	post, err = posts.CreatePost(database.DB, post.Title, post.Content, post.AuthorID)
+	categoryExists, err := helpers.CheckExistsByName(database.DB, "categories", category.Name)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Error creating post"}); encodeErr != nil {
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal("Error encoding JSON response:", encodeErr)
+		}
+		return
+	}
+	if categoryExists {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Category already exists"}); encodeErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal("Error encoding JSON response:", encodeErr)
+		}
+		return
+	}
+
+	category, err = categories.AddCategory(database.DB, category.Name)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Error creating category"}); encodeErr != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Fatal("Error encoding JSON response:", encodeErr)
 		}
@@ -107,7 +125,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	if encodeErr := json.NewEncoder(w).Encode(post); encodeErr != nil {
+	if encodeErr := json.NewEncoder(w).Encode(category); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal("Error encoding JSON response:", encodeErr)
 	}

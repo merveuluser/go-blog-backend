@@ -55,6 +55,27 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userExists, err := helpers.CheckUser(database.DB, userID)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal("Error encoding JSON response:", encodeErr)
+		}
+		return
+	}
+
+	if !userExists {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "User not found"}); encodeErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal("Error encoding JSON response:", encodeErr)
+		}
+		return
+	}
+
 	var post models.Post
 	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -71,7 +92,7 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postExists, err := helpers.CheckExists(database.DB, "posts", post.ID)
+	postExists, err := helpers.CheckExistsByID(database.DB, "posts", post.ID)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)

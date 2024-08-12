@@ -55,6 +55,27 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userExists, err := helpers.CheckUser(database.DB, userID)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal("Error encoding JSON response:", encodeErr)
+		}
+		return
+	}
+
+	if !userExists {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "User not found"}); encodeErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal("Error encoding JSON response:", encodeErr)
+		}
+		return
+	}
+
 	var comment models.Comment
 	if encodeErr := json.NewDecoder(r.Body).Decode(&comment); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)

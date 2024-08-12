@@ -12,7 +12,7 @@ func DeleteComment(db *sql.DB, id int, author_id int) error {
 		return err
 	}
 	if !authOK {
-		return fmt.Errorf("Unauthorizedasd")
+		return fmt.Errorf("Unauthorized")
 	}
 
 	deleteQuery := `DELETE FROM comments WHERE id=$1`
