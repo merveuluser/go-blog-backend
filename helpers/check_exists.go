@@ -82,6 +82,19 @@ func CheckCategoryByName(db *sql.DB, name string) (bool, error) {
 	return exists, nil
 }
 
+func CheckCategoryByID(db *sql.DB, id int) (bool, error) {
+	var exists bool
+
+	query := `SELECT EXISTS(SELECT 1 FROM categories WHERE id = $1);`
+
+	err := db.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
 func CheckTable(db *sql.DB, table string) (bool, error) {
 	var exists bool
 

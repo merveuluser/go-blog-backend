@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/add_comment", handlers.AddCommentHandler)
 	http.HandleFunc("/delete_comment", handlers.DeleteCommentHandler)
 	http.HandleFunc("/create_category", handlers.CreateCategoryHandler)
+	http.HandleFunc("/update_category", handlers.UpdateCategoryHandler)
 	http.HandleFunc("/delete_category", handlers.DeleteCategoryHandler)
 
 	http.HandleFunc("/check_cookie", handlers.CheckCookieHandler)
