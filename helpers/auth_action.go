@@ -2,13 +2,27 @@ package helpers
 
 import (
 	"database/sql"
-	"fmt"
 )
 
-func AuthAction(db *sql.DB, table string, id int, author_id int) (bool, error) {
+func AuthOnPost(db *sql.DB, id int, authorId int) (bool, error) {
 	var authOK bool
-	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE id = %d AND author_id = %d)", table, id, author_id)
-	err := db.QueryRow(query).Scan(&authOK)
+
+	query := `SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1 AND author_id = $2);`
+
+	err := db.QueryRow(query, id, authorId).Scan(&authOK)
+	if err != nil {
+		return false, err
+	}
+
+	return authOK, nil
+}
+
+func AuthOnComment(db *sql.DB, id int, authorId int) (bool, error) {
+	var authOK bool
+
+	query := `SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1 AND author_id = $2);`
+
+	err := db.QueryRow(query, id, authorId).Scan(&authOK)
 	if err != nil {
 		return false, err
 	}

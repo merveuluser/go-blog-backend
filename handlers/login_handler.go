@@ -14,49 +14,30 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "authors")
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
 	if !tableExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "authors table does not exist"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Table `authors` does not exist")
 		return
 	}
 
 	var login models.Login
 	if encodeErr := json.NewDecoder(r.Body).Decode(&login); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
-	}
-
-	if login.Username == "" || login.Password == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid request body"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		log.Println("Error encoding JSON response:", encodeErr)
 		return
 	}
 
-	userID, err := auth.AuthLogin(database.DB, login.Username, login.Password)
+	if login.Username == "" || login.Password == "" {
+		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	userID, err := auth.AuthLogin(database.DB, login.Username, login.Password) // What if QueryRow returns an error? How to handle that?
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid username or password"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
 
@@ -69,10 +50,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, cookie)
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if encodeErr := json.NewEncoder(w).Encode(cookie); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 }

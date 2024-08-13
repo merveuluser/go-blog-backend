@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"blog-backend/database"
+	"blog-backend/helpers"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -10,19 +11,15 @@ import (
 func CreateTablesHandler(w http.ResponseWriter, r *http.Request) {
 	err := database.CreateTables()
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Error creating tables"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating tables")
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Tables created"}); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 }

@@ -19,7 +19,7 @@ func InitDB() {
 	sslmode := os.Getenv("DB_SSLMODE")
 
 	if username == "" || password == "" || dbname == "" || sslmode == "" {
-		log.Fatal("DB_USER, DB_PASSWORD, DB_NAME and DB_SSLMODE are required. Check your env variables")
+		log.Fatal("DB_USER, DB_PASSWORD, DB_NAME and DB_SSLMODE are required. Check your env variables.")
 	}
 
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", username, password, dbname, sslmode)

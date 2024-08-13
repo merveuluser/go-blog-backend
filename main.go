@@ -23,7 +23,7 @@ func main() {
 	http.HandleFunc("/delete_post", handlers.DeletePostHandler)
 	http.HandleFunc("/add_comment", handlers.AddCommentHandler)
 	http.HandleFunc("/delete_comment", handlers.DeleteCommentHandler)
-	http.HandleFunc("/add_category", handlers.AddCategoryHandler)
+	http.HandleFunc("/create_category", handlers.CreateCategoryHandler)
 	http.HandleFunc("/delete_category", handlers.DeleteCategoryHandler)
 
 	http.HandleFunc("/check_cookie", handlers.CheckCookieHandler)

@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
+func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "categories")
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
@@ -63,20 +63,20 @@ func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
-	if !categoryExists {
-		helpers.RespondWithError(w, http.StatusNotFound, "Category not found")
+	if categoryExists {
+		helpers.RespondWithError(w, http.StatusConflict, "Category already exists")
 		return
 	}
 
-	err = categories.DeleteCategory(database.DB, category.Name)
+	category, err = categories.CreateCategory(database.DB, category.Name)
 	if err != nil {
-		helpers.RespondWithError(w, http.StatusInternalServerError, "Error deleting category")
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating category")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Category deleted"}); encodeErr != nil {
+	w.WriteHeader(http.StatusCreated)
+	if encodeErr := json.NewEncoder(w).Encode(category); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return

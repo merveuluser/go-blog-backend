@@ -14,121 +14,83 @@ import (
 func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "posts")
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
 	if !tableExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "posts table does not exist"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Table `posts` does not exist")
 		return
 	}
 
 	cookie, err := r.Cookie("user_id")
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Cookie not found"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusBadRequest, "Cookie not found")
 		return
 	}
 
 	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid user ID"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusUnauthorized, "Invalid user ID")
 		return
 	}
 
-	userExists, err := helpers.CheckUser(database.DB, userID)
+	userExists, err := helpers.CheckUserByID(database.DB, userID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
 	if !userExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "User not found"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusUnauthorized, "User not found")
 		return
 	}
 
 	var post models.Post
 	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 
 	if strconv.Itoa(post.ID) == "" || post.Title == "" || post.Content == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid request body"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	postExists, err := helpers.CheckExistsByID(database.DB, "posts", post.ID)
+	postExists, err := helpers.CheckPostByID(database.DB, post.ID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 	if !postExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Post not found"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusNotFound, "Post not found")
 		return
 	}
 
 	post.AuthorID = userID
 
-	post, err = posts.UpdatePost(database.DB, post.ID, post.Title, post.Content, post.AuthorID)
+	authOK, err := helpers.AuthOnPost(database.DB, post.ID, post.AuthorID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
+		return
+	}
+	if !authOK {
+		helpers.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	post, err = posts.UpdatePost(database.DB, post.ID, post.Title, post.Content)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error updating post")
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if encodeErr := json.NewEncoder(w).Encode(post); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 }

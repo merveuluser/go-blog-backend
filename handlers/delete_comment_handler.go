@@ -14,121 +14,83 @@ import (
 func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "comments")
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
 	if !tableExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "comments table does not exist"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Table `comments` does not exist")
 		return
 	}
 
 	cookie, err := r.Cookie("user_id")
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Cookie not found"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusBadRequest, "Cookie not found")
 		return
 	}
 
 	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid user ID"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusUnauthorized, "Invalid user ID")
 		return
 	}
 
-	userExists, err := helpers.CheckUser(database.DB, userID)
+	userExists, err := helpers.CheckUserByID(database.DB, userID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
 	if !userExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "User not found"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusUnauthorized, "User not found")
 		return
 	}
 
 	var comment models.Comment
 	if encodeErr := json.NewDecoder(r.Body).Decode(&comment); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 
 	if strconv.Itoa(comment.ID) == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Invalid request body"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	commentExists, err := helpers.CheckExistsByID(database.DB, "comments", comment.ID)
+	commentExists, err := helpers.CheckCommentByID(database.DB, comment.ID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 	if !commentExists {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Comment not found"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusNotFound, "Comment not found")
 		return
 	}
 
 	comment.AuthorID = userID
 
-	err = comments.DeleteComment(database.DB, comment.ID, comment.AuthorID)
+	authOK, err := helpers.AuthOnComment(database.DB, comment.ID, comment.AuthorID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Internal server error"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
+		return
+	}
+	if !authOK {
+		helpers.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	err = comments.DeleteComment(database.DB, comment.ID)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error deleting comment")
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Comment deleted"}); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 }

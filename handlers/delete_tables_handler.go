@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"blog-backend/database"
+	"blog-backend/helpers"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -10,19 +11,15 @@ import (
 func DeleteTablesHandler(w http.ResponseWriter, r *http.Request) {
 	err := database.DeleteTables()
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Error deleting tables"}); encodeErr != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error encoding JSON response:", encodeErr)
-		}
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error deleting tables")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Tables deleted"}); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal("Error encoding JSON response:", encodeErr)
+		log.Println("Error encoding JSON response:", encodeErr)
+		return
 	}
 }

@@ -10,6 +10,7 @@ func AuthLogin(db *sql.DB, username, password string) (int, error) {
 	var hashedPassword string
 
 	query := `SELECT id, password FROM authors WHERE username = $1;`
+
 	err := db.QueryRow(query, username).Scan(&id, &hashedPassword)
 	if err != nil {
 		return 0, err
