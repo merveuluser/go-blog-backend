@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-func RegisterUser(db *sql.DB, username, email, password string) (models.Author, error) {
+func RegisterUser(db *sql.DB, username, email, password string) (*models.Author, error) {
 	var author models.Author
-	
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return author, err
+		return nil, err
 	}
 
 	query := `INSERT INTO authors (username, email, password, created_at, updated_at) 
@@ -20,8 +20,8 @@ func RegisterUser(db *sql.DB, username, email, password string) (models.Author, 
 
 	err = db.QueryRow(query, username, email, hashedPassword, time.Now(), time.Now()).Scan(&author.ID, &author.Username, &author.Email, &author.Password, &author.CreatedAt, &author.UpdatedAt)
 	if err != nil {
-		return author, err
+		return nil, err
 	}
 
-	return author, nil
+	return &author, nil
 }

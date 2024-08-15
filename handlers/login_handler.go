@@ -23,7 +23,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var login models.Login
+	var login *models.Login
 	if encodeErr := json.NewDecoder(r.Body).Decode(&login); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)

@@ -1,25 +1,25 @@
 package handlers
 
 import (
+	"blog-backend/comments"
 	"blog-backend/database"
 	"blog-backend/helpers"
 	"blog-backend/models"
-	"blog-backend/posts"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
-	tableExists, err := helpers.CheckTable(database.DB, "posts")
+func UpdateCommentHandler(w http.ResponseWriter, r *http.Request) {
+	tableExists, err := helpers.CheckTable(database.DB, "comments")
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
 	if !tableExists {
-		helpers.RespondWithError(w, http.StatusInternalServerError, "Table `posts` does not exist")
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Table `comments` does not exist")
 		return
 	}
 
@@ -46,31 +46,31 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var post *models.Post
-	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
+	var comment *models.Comment
+	if encodeErr := json.NewDecoder(r.Body).Decode(&comment); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return
 	}
 
-	if post.ID == 0 || post.Title == "" || post.Content == "" {
+	if comment.ID == 0 || comment.Content == "" {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	postExists, err := helpers.CheckPostByID(database.DB, post.ID)
+	commentExists, err := helpers.CheckCommentByID(database.DB, comment.ID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
-	if !postExists {
-		helpers.RespondWithError(w, http.StatusNotFound, "Post not found")
+	if !commentExists {
+		helpers.RespondWithError(w, http.StatusNotFound, "Comment not found")
 		return
 	}
 
-	post.AuthorID = userID
+	comment.AuthorID = userID
 
-	authOK, err := helpers.AuthOnPost(database.DB, post.ID, post.AuthorID)
+	authOK, err := helpers.AuthOnComment(database.DB, comment.ID, comment.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
@@ -80,15 +80,15 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err = posts.UpdatePost(database.DB, post.ID, post.Title, post.Content)
+	comment, err = comments.UpdateComment(database.DB, comment.ID, comment.Content)
 	if err != nil {
-		helpers.RespondWithError(w, http.StatusInternalServerError, "Error updating post")
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error updating comment")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if encodeErr := json.NewEncoder(w).Encode(post); encodeErr != nil {
+	if encodeErr := json.NewEncoder(w).Encode(comment); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return

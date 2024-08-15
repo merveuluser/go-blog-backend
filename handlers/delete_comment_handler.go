@@ -46,14 +46,14 @@ func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var comment models.Comment
+	var comment *models.Comment
 	if encodeErr := json.NewDecoder(r.Body).Decode(&comment); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return
 	}
 
-	if strconv.Itoa(comment.ID) == "" {
+	if comment.ID == 0 {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

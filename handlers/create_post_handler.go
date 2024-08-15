@@ -46,7 +46,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var post models.Post
+	var post *models.Post
 	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)

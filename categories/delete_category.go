@@ -5,7 +5,7 @@ import (
 )
 
 func DeleteCategory(db *sql.DB, name string) error {
-	deleteQuery := `DELETE FROM categories WHERE category_name = $1`
+	deleteQuery := `DELETE FROM categories WHERE name = $1`
 
 	_, err := db.Exec(deleteQuery, name)
 	if err != nil {

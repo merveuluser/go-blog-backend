@@ -72,7 +72,7 @@ func CheckCommentByID(db *sql.DB, id int) (bool, error) {
 func CheckCategoryByName(db *sql.DB, name string) (bool, error) {
 	var exists bool
 
-	query := `SELECT EXISTS(SELECT 1 FROM categories WHERE category_name = $1);`
+	query := `SELECT EXISTS(SELECT 1 FROM categories WHERE name = $1);`
 
 	err := db.QueryRow(query, name).Scan(&exists)
 	if err != nil {

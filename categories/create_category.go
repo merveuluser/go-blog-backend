@@ -5,15 +5,15 @@ import (
 	"database/sql"
 )
 
-func CreateCategory(db *sql.DB, categoryName string) (models.Category, error) {
+func CreateCategory(db *sql.DB, categoryName string) (*models.Category, error) {
 	var category models.Category
 
-	query := `INSERT INTO categories (category_name) VALUES ($1) RETURNING id, category_name;`
+	query := `INSERT INTO categories (name) VALUES ($1) RETURNING id, name;`
 
 	err := db.QueryRow(query, categoryName).Scan(&category.ID, &category.Name)
 	if err != nil {
-		return category, err
+		return nil, err
 	}
 
-	return category, nil
+	return &category, nil
 }

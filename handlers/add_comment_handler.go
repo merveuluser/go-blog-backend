@@ -6,6 +6,7 @@ import (
 	"blog-backend/helpers"
 	"blog-backend/models"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -46,14 +47,14 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var comment models.Comment
+	var comment *models.Comment
 	if encodeErr := json.NewDecoder(r.Body).Decode(&comment); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return
 	}
 
-	if comment.Content == "" || strconv.Itoa(comment.PostID) == "" {
+	if comment.Content == "" || comment.PostID == 0 {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
@@ -73,6 +74,7 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	comment, err = comments.CreateComment(database.DB, comment.Content, comment.PostID, comment.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating comment")
+		fmt.Println(err)
 		return
 	}
 

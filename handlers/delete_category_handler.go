@@ -46,7 +46,7 @@ func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var category models.Category
+	var category *models.Category
 	if encodeErr := json.NewDecoder(r.Body).Decode(&category); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)

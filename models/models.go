@@ -32,9 +32,16 @@ type Comment struct {
 	PostID    int       `json:"post_id"`
 	AuthorID  int       `json:"author_id"`
 	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Category struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
+}
+
+type PostCategory struct {
+	PostID       int    `json:"post_id"`
+	CategoryID   int    `json:"category_id"`
+	CategoryName string `json:"category_name"`
 }

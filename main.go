@@ -22,10 +22,12 @@ func main() {
 	http.HandleFunc("/update_post", handlers.UpdatePostHandler)
 	http.HandleFunc("/delete_post", handlers.DeletePostHandler)
 	http.HandleFunc("/add_comment", handlers.AddCommentHandler)
+	http.HandleFunc("/update_comment", handlers.UpdateCommentHandler)
 	http.HandleFunc("/delete_comment", handlers.DeleteCommentHandler)
 	http.HandleFunc("/create_category", handlers.CreateCategoryHandler)
 	http.HandleFunc("/update_category", handlers.UpdateCategoryHandler)
 	http.HandleFunc("/delete_category", handlers.DeleteCategoryHandler)
+	http.HandleFunc("/add_category_to_post", handlers.AddCategoryToPostHandler)
 
 	http.HandleFunc("/check_cookie", handlers.CheckCookieHandler)
 	http.HandleFunc("/create_tables", handlers.CreateTablesHandler)

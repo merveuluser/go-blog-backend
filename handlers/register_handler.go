@@ -22,7 +22,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var author models.Author
+	var author *models.Author
 	if encodeErr := json.NewDecoder(r.Body).Decode(&author); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)

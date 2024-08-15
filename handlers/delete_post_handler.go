@@ -46,14 +46,14 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var post models.Post
+	var post *models.Post
 	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return
 	}
 
-	if strconv.Itoa(post.ID) == "" {
+	if post.ID == 0 {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

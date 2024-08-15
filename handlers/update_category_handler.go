@@ -46,14 +46,14 @@ func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var category models.Category
+	var category *models.Category
 	if encodeErr := json.NewDecoder(r.Body).Decode(&category); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
 		return
 	}
 
-	if strconv.Itoa(category.ID) == "" || category.Name == "" {
+	if category.ID == 0 || category.Name == "" {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
