@@ -95,6 +95,27 @@ func CheckCategoryByID(db *sql.DB, id int) (bool, error) {
 	return exists, nil
 }
 
+func CheckPostCategory(db *sql.DB, postId int, categoryName string) (bool, error) {
+	var exists bool
+	var categoryID int
+
+	selectQuery := `SELECT * FROM categories WHERE name = $1;`
+
+	err := db.QueryRow(selectQuery, categoryName).Scan(&categoryID, &categoryName)
+	if err != nil {
+		return false, err
+	}
+
+	existsQuery := `SELECT EXISTS(SELECT 1 FROM post_categories WHERE post_id = $1 AND category_id = $2);`
+
+	err = db.QueryRow(existsQuery, postId, categoryID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
 func CheckTable(db *sql.DB, table string) (bool, error) {
 	var exists bool
 

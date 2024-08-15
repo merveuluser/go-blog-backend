@@ -28,10 +28,14 @@ func main() {
 	http.HandleFunc("/update_category", handlers.UpdateCategoryHandler)
 	http.HandleFunc("/delete_category", handlers.DeleteCategoryHandler)
 	http.HandleFunc("/add_category_to_post", handlers.AddCategoryToPostHandler)
+	http.HandleFunc("/remove_category_from_post", handlers.RemoveCategoryFromPostHandler)
 
 	http.HandleFunc("/check_cookie", handlers.CheckCookieHandler)
 	http.HandleFunc("/create_tables", handlers.CreateTablesHandler)
 	http.HandleFunc("/delete_tables", handlers.DeleteTablesHandler)
 
-	http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		return
+	}
 }
