@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,26 +22,9 @@ func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := r.Cookie("user_id")
-	if err != nil {
-		helpers.RespondWithError(w, http.StatusBadRequest, "Cookie not found")
-		return
-	}
-
-	userID, err := strconv.Atoi(cookie.Value)
-	if err != nil {
-		helpers.RespondWithError(w, http.StatusUnauthorized, "Invalid user ID")
-		return
-	}
-
-	userExists, err := helpers.CheckUserByID(database.DB, userID)
-	if err != nil {
-		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
-		return
-	}
-
-	if !userExists {
-		helpers.RespondWithError(w, http.StatusUnauthorized, "User not found")
+	_, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		helpers.RespondWithError(w, http.StatusUnauthorized, "Unauthorized: Unable to retrieve user ID")
 		return
 	}
 
