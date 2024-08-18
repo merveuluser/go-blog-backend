@@ -35,7 +35,8 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if post.ID == 0 || post.Title == "" || post.Content == "" {
+	validJSON := helpers.ValidateJSONPost("update", post)
+	if !validJSON {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

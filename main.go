@@ -30,6 +30,7 @@ func main() {
 	http.HandleFunc("/delete_category", auth.AuthMiddleware(handlers.DeleteCategoryHandler))
 	http.HandleFunc("/add_category_to_post", auth.AuthMiddleware(handlers.AddCategoryToPostHandler))
 	http.HandleFunc("/remove_category_from_post", auth.AuthMiddleware(handlers.RemoveCategoryFromPostHandler))
+	http.HandleFunc("/get_posts", handlers.GetPostsHandler)
 
 	http.HandleFunc("/check_cookie", handlers.CheckCookieHandler)
 	http.HandleFunc("/create_tables", handlers.CreateTablesHandler)

@@ -7,6 +7,7 @@ import (
 	"blog-backend/postcategories"
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
 )
@@ -41,7 +42,8 @@ func RemoveCategoryFromPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if postCategory.PostID == 0 || postCategory.CategoryName == "" {
+	validate := validator.New()
+	if err := validate.Struct(postCategory); err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

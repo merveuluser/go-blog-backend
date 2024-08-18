@@ -35,7 +35,8 @@ func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if comment.ID == 0 {
+	validJSON := helpers.ValidateJSONComment("delete", comment)
+	if !validJSON {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

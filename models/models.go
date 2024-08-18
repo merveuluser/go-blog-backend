@@ -3,25 +3,24 @@ package models
 import "time"
 
 type Login struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type Post struct {
-	ID       int    `json:"id"`
-	Title    string `json:"title"`
-	Content  string `json:"content"`
-	AuthorID int    `json:"author_id"`
-	//Categories []string  `json:"categories"`
+	ID        int       `json:"id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	AuthorID  int       `json:"author_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Author struct {
 	ID        int       `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+	Username  string    `json:"username" validate:"required"`
+	Email     string    `json:"email" validate:"required,email"`
+	Password  string    `json:"password" validate:"required"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -41,7 +40,7 @@ type Category struct {
 }
 
 type PostCategory struct {
-	PostID       int    `json:"post_id"`
+	PostID       int    `json:"post_id" validate:"required"`
 	CategoryID   int    `json:"category_id"`
-	CategoryName string `json:"category_name"`
+	CategoryName string `json:"category_name" validate:"required"`
 }

@@ -6,6 +6,7 @@ import (
 	"blog-backend/helpers"
 	"blog-backend/models"
 	"encoding/json"
+	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
 )
@@ -29,7 +30,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if author.Username == "" || author.Email == "" || author.Password == "" {
+	validate := validator.New()
+	if err := validate.Struct(author); err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

@@ -35,7 +35,8 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if post.Title == "" || post.Content == "" {
+	validJSON := helpers.ValidateJSONPost("create", post)
+	if !validJSON {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

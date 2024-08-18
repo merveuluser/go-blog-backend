@@ -35,7 +35,8 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if category.Name == "" {
+	validJSON := helpers.ValidateJSONCategory("create", category)
+	if !validJSON {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

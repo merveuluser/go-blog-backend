@@ -35,7 +35,8 @@ func UpdateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if comment.ID == 0 || comment.Content == "" {
+	validJSON := helpers.ValidateJSONComment("update", comment)
+	if !validJSON {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}

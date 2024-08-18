@@ -36,7 +36,8 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if comment.Content == "" || comment.PostID == 0 {
+	validJSON := helpers.ValidateJSONComment("add", comment)
+	if !validJSON {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
