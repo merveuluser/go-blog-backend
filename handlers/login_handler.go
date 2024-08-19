@@ -37,7 +37,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := auth.AuthLogin(database.DB, login.Username, login.Password) // What if QueryRow returns an error? How to handle that?
+	userID, err := auth.AuthenticateUser(database.DB, login.Username, login.Password) // What if QueryRow returns an error? How to handle that?
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusUnauthorized, "Invalid username or password")
 		return

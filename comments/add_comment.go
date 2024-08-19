@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func CreateComment(db *sql.DB, content string, postId int, authorId int) (*models.Comment, error) {
+func AddComment(db *sql.DB, content string, postId int, authorId int) (*models.Comment, error) {
 	var comment models.Comment
 
 	query := `INSERT INTO comments (content, post_id, author_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id, content, post_id, author_id, created_at, updated_at;`

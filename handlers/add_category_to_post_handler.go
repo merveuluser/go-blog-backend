@@ -22,8 +22,7 @@ func AddCategoryToPostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		switch tableExists {
-		case false:
+		if !tableExists {
 			helpers.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Table `%s` does not exist", tableName))
 			return
 		}

@@ -54,7 +54,7 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	comment.AuthorID = userID
 
-	comment, err = comments.CreateComment(database.DB, comment.Content, comment.PostID, comment.AuthorID)
+	comment, err = comments.AddComment(database.DB, comment.Content, comment.PostID, comment.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating comment")
 		fmt.Println(err)

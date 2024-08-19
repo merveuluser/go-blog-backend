@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func AuthLogin(db *sql.DB, username, password string) (int, error) {
+func AuthenticateUser(db *sql.DB, username, password string) (int, error) {
 	var id int
 	var hashedPassword string
 
@@ -29,7 +29,7 @@ func AuthLogin(db *sql.DB, username, password string) (int, error) {
 	return id, nil
 }
 
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func AuthenticateUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("user_id")
 		if err != nil {
