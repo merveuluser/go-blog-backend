@@ -42,8 +42,13 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post.AuthorID = userID
+	post.Summary, err = helpers.PostContentSummarizer(post.Content)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error summarizing post content")
+		return
+	}
 
-	post, err = posts.CreatePost(database.DB, post.Title, post.Content, post.AuthorID)
+	post, err = posts.CreatePost(database.DB, post.Title, post.Content, post.Summary, post.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating post")
 		return

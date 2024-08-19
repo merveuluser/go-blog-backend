@@ -3,6 +3,8 @@ module blog-backend
 go 1.22.4
 
 require (
+	github.com/JesusIslam/tldr v0.6.0 // indirect
+	github.com/alixaxel/pagerank v0.0.0-20200105181019-900657b89dcb // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

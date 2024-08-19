@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS "posts" (
     "id" SERIAL PRIMARY KEY,
     "title" text NOT NULL,
     "content" text NOT NULL,
+    "summary" text,
     "author_id" integer,
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
