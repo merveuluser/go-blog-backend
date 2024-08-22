@@ -12,6 +12,7 @@ type Post struct {
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Summary   string    `json:"summary"`
+	URL       string    `json:"url"`
 	AuthorID  int       `json:"author_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

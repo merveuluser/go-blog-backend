@@ -48,7 +48,13 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err = posts.CreatePost(database.DB, post.Title, post.Content, post.Summary, post.AuthorID)
+	post.URL, err = helpers.PostUrlCreator(post.Title)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating post URL")
+		return
+	}
+
+	post, err = posts.CreatePost(database.DB, post.Title, post.Content, post.Summary, post.URL, post.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating post")
 		return

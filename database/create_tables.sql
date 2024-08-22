@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS "posts" (
     "title" text NOT NULL,
     "content" text NOT NULL,
     "summary" text,
+    "url" text,
     "author_id" integer,
     "created_at" timestamp default current_timestamp,
     "updated_at" timestamp default current_timestamp
