@@ -24,14 +24,12 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	allPosts, err := posts.GetPosts(database.DB)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	if encodeErr := json.NewEncoder(w).Encode(allPosts); encodeErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
-		return
 	}
 
 }

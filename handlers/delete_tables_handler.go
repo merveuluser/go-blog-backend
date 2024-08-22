@@ -16,10 +16,7 @@ func DeleteTablesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	if encodeErr := json.NewEncoder(w).Encode(map[string]string{"message": "Tables deleted"}); encodeErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
-		return
 	}
 }

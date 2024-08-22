@@ -58,10 +58,7 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
 	if encodeErr := json.NewEncoder(w).Encode(category); encodeErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Error encoding JSON response:", encodeErr)
-		return
 	}
 }
