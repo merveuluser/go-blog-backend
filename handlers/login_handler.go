@@ -9,7 +9,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,23 +36,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := auth.AuthenticateUser(database.DB, login.Username, login.Password) // What if QueryRow returns an error? How to handle that?
+	err = auth.AuthenticateUser(database.DB, login.Username, login.Password) // What if QueryRow returns an error? How to handle that?
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
 
-	cookie := &http.Cookie{
-		Name:     "user_id",
-		Value:    strconv.Itoa(userID),
-		Path:     "/",
-		HttpOnly: true,
+	token, err := auth.GenerateJWT(login.Username)
+	if err != nil {
+		http.Error(w, "Could not generate token", http.StatusInternalServerError)
+		return
 	}
 
-	http.SetCookie(w, cookie)
-
 	w.Header().Set("Content-Type", "application/json")
-	if encodeErr := json.NewEncoder(w).Encode(cookie); encodeErr != nil {
+	response := map[string]string{
+		"message": "Login successful",
+		"token":   token,
+	}
+	if encodeErr := json.NewEncoder(w).Encode(response); encodeErr != nil {
 		log.Println("Error encoding JSON response:", encodeErr)
 	}
 }

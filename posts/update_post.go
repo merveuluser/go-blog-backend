@@ -18,7 +18,7 @@ func UpdatePost(db *sql.DB, id int, title string, content string) (*models.Post,
 
 	selectQuery := `SELECT * FROM posts WHERE id = $1;`
 
-	err = db.QueryRow(selectQuery, id).Scan(&post.ID, &post.Title, &post.Content, &post.AuthorID, &post.CreatedAt, &post.UpdatedAt)
+	err = db.QueryRow(selectQuery, id).Scan(&post.ID, &post.Title, &post.Content, &post.Summary, &post.URL, &post.AuthorID, &post.CreatedAt, &post.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blog-backend/auth"
 	"blog-backend/comments"
 	"blog-backend/database"
 	"blog-backend/helpers"
@@ -53,7 +54,7 @@ func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	comment.AuthorID = userID
 
-	authOK, err := helpers.AuthOnComment(database.DB, comment.ID, comment.AuthorID)
+	authOK, err := auth.AuthOnComment(database.DB, comment.ID, comment.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return

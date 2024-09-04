@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blog-backend/auth"
 	"blog-backend/database"
 	"blog-backend/helpers"
 	"blog-backend/models"
@@ -68,7 +69,7 @@ func RemoveCategoryFromPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authOK, err := helpers.AuthOnPost(database.DB, postCategory.PostID, userID)
+	authOK, err := auth.AuthOnPost(database.DB, postCategory.PostID, userID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return

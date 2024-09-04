@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blog-backend/auth"
 	"blog-backend/database"
 	"blog-backend/helpers"
 	"blog-backend/models"
@@ -53,7 +54,7 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	post.AuthorID = userID
 
-	authOK, err := helpers.AuthOnPost(database.DB, post.ID, post.AuthorID)
+	authOK, err := auth.AuthOnPost(database.DB, post.ID, post.AuthorID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return

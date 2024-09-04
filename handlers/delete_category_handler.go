@@ -22,12 +22,6 @@ func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, ok := r.Context().Value("user_id").(int)
-	if !ok {
-		helpers.RespondWithError(w, http.StatusUnauthorized, "Unauthorized: Unable to retrieve user ID")
-		return
-	}
-
 	var category *models.Category
 	if encodeErr := json.NewDecoder(r.Body).Decode(&category); encodeErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
