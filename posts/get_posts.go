@@ -6,7 +6,11 @@ import (
 )
 
 func GetPosts(db *sql.DB) ([]models.Post, error) {
-	query := `SELECT * FROM posts;`
+	query := `
+		SELECT p.id, p.title, p.content, p.summary, p.url, p.author_id, a.username, p.created_at, p.updated_at
+		FROM posts p
+		JOIN authors a ON p.author_id = a.id;
+	`
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -18,9 +22,11 @@ func GetPosts(db *sql.DB) ([]models.Post, error) {
 
 	for rows.Next() {
 		var post models.Post
-		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Summary, &post.URL, &post.AuthorID, &post.CreatedAt, &post.UpdatedAt); err != nil {
+
+		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Summary, &post.URL, &post.AuthorID, &post.AuthorUsername, &post.CreatedAt, &post.UpdatedAt); err != nil {
 			return nil, err
 		}
+
 		posts = append(posts, post)
 	}
 	if err := rows.Err(); err != nil {

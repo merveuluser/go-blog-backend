@@ -8,14 +8,15 @@ type Login struct {
 }
 
 type Post struct {
-	ID        int       `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Summary   string    `json:"summary"`
-	URL       string    `json:"url"`
-	AuthorID  int       `json:"author_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID             int       `json:"id"`
+	Title          string    `json:"title"`
+	Content        string    `json:"content"`
+	Summary        string    `json:"summary"`
+	URL            string    `json:"url"`
+	AuthorID       int       `json:"author_id"`
+	AuthorUsername string    `json:"author_username"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type Author struct {
