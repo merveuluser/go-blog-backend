@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +28,11 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	numOfPosts := len(allPosts)
+
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Total-Count", strconv.Itoa(numOfPosts))
+	w.Header().Set("Access-Control-Expose-Headers", "X-Total-Count") // Ensure CORS exposes the header
 	if encodeErr := json.NewEncoder(w).Encode(allPosts); encodeErr != nil {
 		log.Println("Error encoding JSON response:", encodeErr)
 	}

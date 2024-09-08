@@ -33,7 +33,8 @@ func main() {
 	mux.HandleFunc("/delete_category", auth.AuthMiddleware(handlers.DeleteCategoryHandler))
 	mux.HandleFunc("/add_category_to_post", auth.AuthMiddleware(handlers.AddCategoryToPostHandler))
 	mux.HandleFunc("/remove_category_from_post", auth.AuthMiddleware(handlers.RemoveCategoryFromPostHandler))
-	mux.HandleFunc("/get_posts", handlers.GetPostsHandler)
+	mux.HandleFunc("/posts", handlers.GetPostsHandler)
+	mux.HandleFunc("/authors", handlers.GetAuthorsHandler)
 
 	mux.HandleFunc("/create_tables", handlers.CreateTablesHandler)
 	mux.HandleFunc("/delete_tables", handlers.DeleteTablesHandler)
