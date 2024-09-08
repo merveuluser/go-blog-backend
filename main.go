@@ -4,6 +4,7 @@ import (
 	"blog-backend/auth"
 	"blog-backend/database"
 	"blog-backend/handlers"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"log"
@@ -18,28 +19,32 @@ func main() {
 
 	database.InitDB()
 
-	mux := http.NewServeMux()
+	r := mux.NewRouter()
 
-	mux.HandleFunc("/register", handlers.RegisterHandler)
-	mux.HandleFunc("/login", handlers.LoginHandler)
-	mux.HandleFunc("/create_post", auth.AuthMiddleware(handlers.CreatePostHandler))
-	mux.HandleFunc("/update_post", auth.AuthMiddleware(handlers.UpdatePostHandler))
-	mux.HandleFunc("/delete_post", auth.AuthMiddleware(handlers.DeletePostHandler))
-	mux.HandleFunc("/add_comment", auth.AuthMiddleware(handlers.AddCommentHandler))
-	mux.HandleFunc("/update_comment", auth.AuthMiddleware(handlers.UpdateCommentHandler))
-	mux.HandleFunc("/delete_comment", auth.AuthMiddleware(handlers.DeleteCommentHandler))
-	mux.HandleFunc("/create_category", auth.AuthMiddleware(handlers.CreateCategoryHandler))
-	mux.HandleFunc("/update_category", auth.AuthMiddleware(handlers.UpdateCategoryHandler))
-	mux.HandleFunc("/delete_category", auth.AuthMiddleware(handlers.DeleteCategoryHandler))
-	mux.HandleFunc("/add_category_to_post", auth.AuthMiddleware(handlers.AddCategoryToPostHandler))
-	mux.HandleFunc("/remove_category_from_post", auth.AuthMiddleware(handlers.RemoveCategoryFromPostHandler))
-	mux.HandleFunc("/posts", handlers.GetPostsHandler)
-	mux.HandleFunc("/authors", handlers.GetAuthorsHandler)
+	r.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
+	r.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 
-	mux.HandleFunc("/create_tables", handlers.CreateTablesHandler)
-	mux.HandleFunc("/delete_tables", handlers.DeleteTablesHandler)
+	r.HandleFunc("/posts", handlers.GetPostsHandler).Methods("GET")
+	r.HandleFunc("/posts/{id}", handlers.GetPostByIDHandler).Methods("GET")
+	r.HandleFunc("/authors", handlers.GetAuthorsHandler).Methods("GET")
+	r.HandleFunc("/authors/{id}", handlers.GetAuthorByID).Methods("GET")
 
-	handler := cors.Default().Handler(mux)
+	r.HandleFunc("/create_post", auth.AuthMiddleware(handlers.CreatePostHandler)).Methods("POST")
+	r.HandleFunc("/update_post", auth.AuthMiddleware(handlers.UpdatePostHandler)).Methods("PUT")
+	r.HandleFunc("/delete_post", auth.AuthMiddleware(handlers.DeletePostHandler)).Methods("DELETE")
+	r.HandleFunc("/add_comment", auth.AuthMiddleware(handlers.AddCommentHandler)).Methods("POST")
+	r.HandleFunc("/update_comment", auth.AuthMiddleware(handlers.UpdateCommentHandler)).Methods("PUT")
+	r.HandleFunc("/delete_comment", auth.AuthMiddleware(handlers.DeleteCommentHandler)).Methods("DELETE")
+	r.HandleFunc("/create_category", auth.AuthMiddleware(handlers.CreateCategoryHandler)).Methods("POST")
+	r.HandleFunc("/update_category", auth.AuthMiddleware(handlers.UpdateCategoryHandler)).Methods("PUT")
+	r.HandleFunc("/delete_category", auth.AuthMiddleware(handlers.DeleteCategoryHandler)).Methods("DELETE")
+	r.HandleFunc("/add_category_to_post", auth.AuthMiddleware(handlers.AddCategoryToPostHandler)).Methods("POST")
+	r.HandleFunc("/remove_category_from_post", auth.AuthMiddleware(handlers.RemoveCategoryFromPostHandler)).Methods("DELETE")
+
+	r.HandleFunc("/create_tables", handlers.CreateTablesHandler).Methods("POST")
+	r.HandleFunc("/delete_tables", handlers.DeleteTablesHandler).Methods("DELETE")
+
+	handler := cors.Default().Handler(r)
 	err = http.ListenAndServe(":8080", handler)
 	if err != nil {
 		return

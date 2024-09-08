@@ -5,12 +5,13 @@ import (
 	"blog-backend/database"
 	"blog-backend/helpers"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-func GetAuthorsHandler(w http.ResponseWriter, r *http.Request) {
+func GetAuthorByID(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "authors")
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
@@ -22,18 +23,20 @@ func GetAuthorsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	allAuthors, err := authors.GetAuthors(database.DB)
+	idStr := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		helpers.RespondWithError(w, http.StatusInternalServerError, "Failed to get authors")
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Cannot convert id to int")
+	}
+
+	author, err := authors.GetAuthorByID(database.DB, id)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Failed to get author")
 		return
 	}
 
-	numOfAuthors := len(allAuthors)
-
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("X-Total-Count", strconv.Itoa(numOfAuthors))
-	w.Header().Set("Access-Control-Expose-Headers", "X-Total-Count") // Ensure CORS exposes the header
-	if encodeErr := json.NewEncoder(w).Encode(allAuthors); encodeErr != nil {
+	if encodeErr := json.NewEncoder(w).Encode(author); encodeErr != nil {
 		log.Println("Error encoding JSON response:", encodeErr)
 	}
 
