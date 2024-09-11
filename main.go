@@ -4,9 +4,9 @@ import (
 	"blog-backend/auth"
 	"blog-backend/database"
 	"blog-backend/handlers"
+	corsHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
 	"log"
 	"net/http"
 )
@@ -21,6 +21,10 @@ func main() {
 
 	r := mux.NewRouter()
 
+	headersOk := corsHandlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := corsHandlers.AllowedOrigins([]string{"http://localhost:3000"})
+	methodsOk := corsHandlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+
 	r.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 
@@ -29,9 +33,9 @@ func main() {
 	r.HandleFunc("/authors", handlers.GetAuthorsHandler).Methods("GET")
 	r.HandleFunc("/authors/{id}", handlers.GetAuthorByID).Methods("GET")
 
-	r.HandleFunc("/create_post", auth.AuthMiddleware(handlers.CreatePostHandler)).Methods("POST")
-	r.HandleFunc("/update_post", auth.AuthMiddleware(handlers.UpdatePostHandler)).Methods("PUT")
-	r.HandleFunc("/delete_post", auth.AuthMiddleware(handlers.DeletePostHandler)).Methods("DELETE")
+	r.HandleFunc("/posts", auth.AuthMiddleware(handlers.CreatePostHandler)).Methods("POST")
+	r.HandleFunc("/posts/{id}", auth.AuthMiddleware(handlers.UpdatePostHandler)).Methods("PUT")
+	r.HandleFunc("/posts/{id}", auth.AuthMiddleware(handlers.DeletePostHandler)).Methods("DELETE")
 	r.HandleFunc("/add_comment", auth.AuthMiddleware(handlers.AddCommentHandler)).Methods("POST")
 	r.HandleFunc("/update_comment", auth.AuthMiddleware(handlers.UpdateCommentHandler)).Methods("PUT")
 	r.HandleFunc("/delete_comment", auth.AuthMiddleware(handlers.DeleteCommentHandler)).Methods("DELETE")
@@ -44,8 +48,7 @@ func main() {
 	r.HandleFunc("/create_tables", handlers.CreateTablesHandler).Methods("POST")
 	r.HandleFunc("/delete_tables", handlers.DeleteTablesHandler).Methods("DELETE")
 
-	handler := cors.Default().Handler(r)
-	err = http.ListenAndServe(":8080", handler)
+	err = http.ListenAndServe(":8080", corsHandlers.CORS(originsOk, headersOk, methodsOk)(r))
 	if err != nil {
 		return
 	}

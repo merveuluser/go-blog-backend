@@ -28,8 +28,9 @@ func GetPostByIDHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Cannot convert id to int")
+		return
 	}
-	
+
 	post, err := posts.GetPostByID(database.DB, id)
 	if err != nil {
 		fmt.Println(err)

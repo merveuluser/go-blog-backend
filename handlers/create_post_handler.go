@@ -42,6 +42,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post.AuthorID = userID
+
 	post.Summary, err = helpers.PostContentSummarizer(post.Content)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error summarizing post content")

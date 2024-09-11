@@ -7,8 +7,10 @@ import (
 	"blog-backend/models"
 	"blog-backend/posts"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +66,14 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err = posts.UpdatePost(database.DB, post.ID, post.Title, post.Content)
+	idStr := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Cannot convert id to int")
+		return
+	}
+
+	post, err = posts.UpdatePost(database.DB, id, post.Title, post.Content)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error updating post")
 		return

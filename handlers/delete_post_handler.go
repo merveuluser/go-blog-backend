@@ -4,11 +4,12 @@ import (
 	"blog-backend/auth"
 	"blog-backend/database"
 	"blog-backend/helpers"
-	"blog-backend/models"
 	"blog-backend/posts"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,20 +30,14 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var post *models.Post
-	if encodeErr := json.NewDecoder(r.Body).Decode(&post); encodeErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println("Error encoding JSON response:", encodeErr)
+	idStr := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusInternalServerError, "Cannot convert id to int")
 		return
 	}
 
-	validJSON := helpers.ValidateJSONPost("delete", post)
-	if !validJSON {
-		helpers.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
-		return
-	}
-
-	postExists, err := helpers.CheckPostByID(database.DB, post.ID)
+	postExists, err := helpers.CheckPostByID(database.DB, id)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
@@ -52,9 +47,7 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post.AuthorID = userID
-
-	authOK, err := auth.AuthOnPost(database.DB, post.ID, post.AuthorID)
+	authOK, err := auth.AuthOnPost(database.DB, id, userID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
@@ -64,7 +57,7 @@ func DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = posts.DeletePost(database.DB, post.ID)
+	err = posts.DeletePost(database.DB, id)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error deleting post")
 		return
