@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-func GetPostByIDHandler(w http.ResponseWriter, r *http.Request) {
+func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "posts")
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
@@ -31,7 +31,7 @@ func GetPostByIDHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := posts.GetPostByID(database.DB, id)
+	post, err := posts.GetPost(database.DB, id)
 	if err != nil {
 		fmt.Println(err)
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Failed to get post")

@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func GetAuthorByID(w http.ResponseWriter, r *http.Request) {
+func GetAuthorHandler(w http.ResponseWriter, r *http.Request) {
 	tableExists, err := helpers.CheckTable(database.DB, "authors")
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Internal server error")
@@ -29,7 +29,7 @@ func GetAuthorByID(w http.ResponseWriter, r *http.Request) {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Cannot convert id to int")
 	}
 
-	author, err := authors.GetAuthorByID(database.DB, id)
+	author, err := authors.GetAuthor(database.DB, id)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Failed to get author")
 		return
@@ -39,5 +39,4 @@ func GetAuthorByID(w http.ResponseWriter, r *http.Request) {
 	if encodeErr := json.NewEncoder(w).Encode(author); encodeErr != nil {
 		log.Println("Error encoding JSON response:", encodeErr)
 	}
-
 }

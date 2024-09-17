@@ -56,7 +56,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	author, err = auth.RegisterUser(database.DB, author.Username, author.Email, author.Password)
+	author, err = auth.RegisterAuthor(database.DB, author.Username, author.Email, author.Password)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, "Error creating author")
 		return

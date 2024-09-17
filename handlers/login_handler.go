@@ -50,8 +50,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	response := map[string]string{
-		"message": "Login successful",
-		"token":   token,
+		"message":      "Login successful",
+		"access_token": token,
 	}
 	if encodeErr := json.NewEncoder(w).Encode(response); encodeErr != nil {
 		log.Println("Error encoding JSON response:", encodeErr)

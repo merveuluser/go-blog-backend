@@ -5,7 +5,7 @@ import (
 	"database/sql"
 )
 
-func GetPostByID(db *sql.DB, id int) (*models.Post, error) {
+func GetPost(db *sql.DB, id int) (*models.Post, error) {
 	var post models.Post
 
 	query := `

@@ -29,13 +29,16 @@ func main() {
 	r.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 
 	r.HandleFunc("/posts", handlers.GetPostsHandler).Methods("GET")
-	r.HandleFunc("/posts/{id}", handlers.GetPostByIDHandler).Methods("GET")
-	r.HandleFunc("/authors", handlers.GetAuthorsHandler).Methods("GET")
-	r.HandleFunc("/authors/{id}", handlers.GetAuthorByID).Methods("GET")
-
-	r.HandleFunc("/posts", auth.AuthMiddleware(handlers.CreatePostHandler)).Methods("POST")
+	r.HandleFunc("/posts/{id}", handlers.GetPostHandler).Methods("GET")
+	r.HandleFunc("/posts/create", auth.AuthMiddleware(handlers.CreatePostHandler)).Methods("POST")
 	r.HandleFunc("/posts/{id}", auth.AuthMiddleware(handlers.UpdatePostHandler)).Methods("PUT")
 	r.HandleFunc("/posts/{id}", auth.AuthMiddleware(handlers.DeletePostHandler)).Methods("DELETE")
+
+	r.HandleFunc("/authors", handlers.GetAuthorsHandler).Methods("GET")
+	r.HandleFunc("/authors/{id}", handlers.GetAuthorHandler).Methods("GET")
+	//r.HandleFunc("/authors/{id}", handlers.UpdateAuthorHandler).Methods("PUT")
+	//r.HandleFunc("/authors/{id}", handlers.DeleteAuthorHandler).Methods("DELETE")
+
 	r.HandleFunc("/add_comment", auth.AuthMiddleware(handlers.AddCommentHandler)).Methods("POST")
 	r.HandleFunc("/update_comment", auth.AuthMiddleware(handlers.UpdateCommentHandler)).Methods("PUT")
 	r.HandleFunc("/delete_comment", auth.AuthMiddleware(handlers.DeleteCommentHandler)).Methods("DELETE")

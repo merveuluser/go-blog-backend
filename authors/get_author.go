@@ -5,7 +5,7 @@ import (
 	"database/sql"
 )
 
-func GetAuthorByID(db *sql.DB, id int) (*models.Author, error) {
+func GetAuthor(db *sql.DB, id int) (*models.Author, error) {
 	var author models.Author
 
 	query := `SELECT * from authors WHERE id = $1;`

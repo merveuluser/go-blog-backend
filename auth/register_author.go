@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func RegisterUser(db *sql.DB, username, email, password string) (*models.Author, error) {
+func RegisterAuthor(db *sql.DB, username, email, password string) (*models.Author, error) {
 	var author models.Author
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
